@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "thumbtack": {
+      "command": "npx",
+      "args": ["-y", "@chrischall/thumbtack-mcp"]
+    }
+  }
+}

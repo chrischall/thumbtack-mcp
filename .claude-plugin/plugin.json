@@ -1,0 +1,13 @@
+{
+  "name": "thumbtack",
+  "displayName": "Thumbtack",
+  "version": "0.0.0",
+  "description": "Unofficial Thumbtack tools for Claude — search local service pros, read profiles, ratings and reviews via MCP",
+  "author": { "name": "Chris Chall" },
+  "homepage": "https://github.com/chrischall/thumbtack-mcp",
+  "repository": "https://github.com/chrischall/thumbtack-mcp",
+  "license": "MIT",
+  "keywords": ["thumbtack", "home-services", "contractors", "local-services", "mcp"],
+  "skills": "./skills/",
+  "mcp": "./.mcp.json"
+}
