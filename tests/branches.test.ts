@@ -17,6 +17,12 @@ describe('parse edge cases', () => {
     const html = `<script type="application/ld+json">[{"@type":"Electrician","name":"Volt","address":{}}]</script>`;
     expect(localBusiness(html)?.name).toBe('Volt');
   });
+  it('skips a literal null ld+json block', () => {
+    // `JSON.parse("null")` is a valid block that is neither array nor object.
+    const html = `<script type="application/ld+json">null</script>` +
+      `<script type="application/ld+json">{"@type":"Plumber","name":"Ok","address":{}}</script>`;
+    expect(localBusiness(html)?.name).toBe('Ok');
+  });
   it('skips non-object and unnamed candidates before matching', () => {
     const html = `<script type="application/ld+json">["a string", {"noName":1}, {"name":"X"}, {"name":"Y","aggregateRating":{}}]</script>`;
     expect(localBusiness(html)?.name).toBe('Y');
