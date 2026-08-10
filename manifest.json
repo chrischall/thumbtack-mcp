@@ -2,9 +2,11 @@
   "manifest_version": "0.3",
   "name": "thumbtack-mcp",
   "display_name": "Thumbtack",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Unofficial Thumbtack MCP — search local service pros, read profiles, ratings and reviews. Anonymous, read-only.",
-  "author": { "name": "Chris Chall" },
+  "author": {
+    "name": "Chris Chall"
+  },
   "homepage": "https://github.com/chrischall/thumbtack-mcp",
   "license": "MIT",
   "server": {
@@ -12,12 +14,20 @@
     "entry_point": "dist/bundle.js",
     "mcp_config": {
       "command": "node",
-      "args": ["${__dirname}/dist/bundle.js"]
+      "args": [
+        "${__dirname}/dist/bundle.js"
+      ]
     }
   },
   "user_config": {},
   "compatibility": {
-    "platforms": ["darwin", "win32", "linux"],
-    "runtimes": { "node": ">=22.5.0" }
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=22.5.0"
+    }
   }
 }
