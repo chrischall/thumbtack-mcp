@@ -32,9 +32,10 @@ No configuration — there are no environment variables.
 | `thumbtack_graphql` | Escape hatch for arbitrary read-only GraphQL. Mutations refused. |
 | `thumbtack_healthcheck` | Probes the page and GraphQL surfaces separately and reports the response shape still matches. |
 
-`thumbtack_search_pros` returns compact records by default; pass
-`compact: false` for the full upstream records, which are large and mostly
-tracking metadata.
+`thumbtack_search_pros` returns the full upstream records by default; pass
+`compact: true` for slim summaries. The full records are large and mostly
+tracking metadata, so `compact: true` is usually what you want when an agent
+is browsing or ranking.
 
 ## Shell-only alternative
 
