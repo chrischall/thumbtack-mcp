@@ -6,6 +6,19 @@ updates:
       interval: weekly
     open-pull-requests-limit: 10
     groups:
+      # vitest and its coverage provider peer-depend on each OTHER at an exact
+      # version, so a major bump to either alone makes the peer set
+      # unsatisfiable and `npm ci` fails. Group them across all update-types
+      # (the dev-dependencies group below only covers minor/patch) so they
+      # always travel in one PR. Listed first: the first matching group wins.
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+        update-types:
+          - major
+          - minor
+          - patch
       dev-dependencies:
         dependency-type: development
         update-types:
