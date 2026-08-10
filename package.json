@@ -1,6 +1,6 @@
 {
   "name": "@chrischall/thumbtack-mcp",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "MCP server for Thumbtack — search local service pros and read pro profiles, ratings, reviews and credentials.",
   "type": "module",
   "mcpName": "io.github.chrischall/thumbtack-mcp",
