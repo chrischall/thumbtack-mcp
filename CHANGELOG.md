@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v0.1.0...thumbtack-mcp-v0.1.1) (2026-08-10)
+
+
+### Bug Fixes
+
+* **build:** declare repository.url so the provenance publish succeeds ([#10](https://github.com/chrischall/thumbtack-mcp/issues/10)) ([a4e77fb](https://github.com/chrischall/thumbtack-mcp/commit/a4e77fb79357c3b1ffcba37714dbb71526706597))
+
 ## 0.1.0 (2026-08-10)
 
 

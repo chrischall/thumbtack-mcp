@@ -1,7 +1,7 @@
 {
   "name": "thumbtack",
   "displayName": "Thumbtack",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Unofficial Thumbtack tools for Claude — search local service pros, read profiles, ratings and reviews via MCP",
   "author": {
     "name": "Chris Chall"
