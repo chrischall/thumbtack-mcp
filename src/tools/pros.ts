@@ -48,8 +48,8 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
         zip: UsZip.describe('5-digit US ZIP code to search near.'),
         compact: z
           .boolean()
-          .default(true)
-          .describe('Return slim summaries (default). Set false for the full upstream records, which are large and mostly tracking metadata.'),
+          .default(false)
+          .describe('Set true for slim summaries (name, rating, reviews, hires, response time, url). Default false returns the full upstream records, which are large and mostly tracking metadata.'),
         limit: z.number().int().min(1).max(10).optional().describe('Cap the number of pros returned (upstream page size is 10).'),
       },
     },
