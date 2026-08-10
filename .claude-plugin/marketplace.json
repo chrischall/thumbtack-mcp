@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Thumbtack tools for Claude Code",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "plugins": [
     {
@@ -14,7 +14,7 @@
       "displayName": "Thumbtack",
       "source": "./",
       "description": "Unofficial Thumbtack tools for Claude — search local service pros, read profiles, ratings and reviews via MCP",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {
         "name": "Chris Chall"
       },
