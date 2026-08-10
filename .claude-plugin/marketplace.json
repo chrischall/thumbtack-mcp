@@ -1,9 +1,12 @@
 {
   "name": "chrischall",
-  "owner": { "name": "Chris Chall", "email": "chris.c.hall@gmail.com" },
+  "owner": {
+    "name": "Chris Chall",
+    "email": "chris.c.hall@gmail.com"
+  },
   "metadata": {
     "description": "Thumbtack tools for Claude Code",
-    "version": "0.0.0"
+    "version": "0.1.0"
   },
   "plugins": [
     {
@@ -11,12 +14,20 @@
       "displayName": "Thumbtack",
       "source": "./",
       "description": "Unofficial Thumbtack tools for Claude — search local service pros, read profiles, ratings and reviews via MCP",
-      "version": "0.0.0",
-      "author": { "name": "Chris Chall" },
+      "version": "0.1.0",
+      "author": {
+        "name": "Chris Chall"
+      },
       "homepage": "https://github.com/chrischall/thumbtack-mcp",
       "repository": "https://github.com/chrischall/thumbtack-mcp",
       "license": "MIT",
-      "keywords": ["thumbtack", "home-services", "contractors", "local-services", "mcp"],
+      "keywords": [
+        "thumbtack",
+        "home-services",
+        "contractors",
+        "local-services",
+        "mcp"
+      ],
       "category": "productivity"
     }
   ]
