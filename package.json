@@ -16,7 +16,8 @@
     ".claude-plugin",
     "skills",
     ".mcp.json",
-    "server.json"
+    "server.json",
+    "mint.yaml"
   ],
   "publishConfig": {
     "access": "public"

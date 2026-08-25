@@ -17,3 +17,4 @@ tsconfig.json
 vitest.config.ts
 package-lock.json
 dbg.mjs
+mint.yaml
