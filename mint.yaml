@@ -1,0 +1,12 @@
+version: 1
+name: Thumbtack
+slug: thumbtack
+summary: >-
+  Unofficial Thumbtack MCP — search local service pros, read profiles,
+  ratings and reviews. Anonymous, read-only.
+egress:
+  allow:
+    # Only hosts the SERVER process actually fetches. Hosts that appear
+    # solely in a URL this server BUILDS and returns are excluded.
+    - app.thumbtack.com
+    - www.thumbtack.com
