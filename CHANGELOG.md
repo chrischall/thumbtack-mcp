@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v0.1.1...thumbtack-mcp-v0.2.0) (2026-09-04)
+
+
+### Features
+
+* **tools:** compact by default, on the projection this repo already had ([#32](https://github.com/chrischall/thumbtack-mcp/issues/32)) ([eb10aab](https://github.com/chrischall/thumbtack-mcp/commit/eb10aab4c91efe0f5469f36797e7192836eef328))
+
 ## [0.1.1](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v0.1.0...thumbtack-mcp-v0.1.1) (2026-08-10)
 
 
