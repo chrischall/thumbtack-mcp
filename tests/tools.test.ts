@@ -54,9 +54,9 @@ describe('tool roster', () => {
 describe('thumbtack_search_pros', () => {
   // Fleet convention: `compact` is opt-IN, so full upstream records stay
   // reachable by default and nothing is silently projected away.
-  it('returns full upstream records by default', async () => {
+  it('returns full upstream records on view:"full"', async () => {
     const h = await harness();
-    const out = parseToolResult<any>(await h.callTool('thumbtack_search_pros', { service: 'house cleaning', zip: '28203' }));
+    const out = parseToolResult<any>(await h.callTool('thumbtack_search_pros', { service: 'house cleaning', zip: '28203', view: 'full' }));
     expect(out.canonicalService).toBe('house-cleaning');
     expect(out.pros[0]).toHaveProperty('businessSummaryPrefab');
     await h.close();
@@ -64,7 +64,7 @@ describe('thumbtack_search_pros', () => {
 
   it('returns slim records when compact is true', async () => {
     const h = await harness();
-    const out = parseToolResult<any>(await h.callTool('thumbtack_search_pros', { service: 'house cleaning', zip: '28203', compact: true }));
+    const out = parseToolResult<any>(await h.callTool('thumbtack_search_pros', { service: 'house cleaning', zip: '28203' }));
     expect(out.pros[0].name).toBe('Andreia’s Cleaning LLC');
     expect(out.pros[0]).not.toHaveProperty('businessSummaryPrefab');
     await h.close();

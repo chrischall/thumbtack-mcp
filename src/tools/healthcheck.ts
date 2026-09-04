@@ -1,6 +1,7 @@
 /** Liveness probe for the anonymous Thumbtack surface. */
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { messageOf, textResult, toolAnnotations, truncateErrorMessage } from '@chrischall/mcp-utils';
+import { isCompact, viewArg, viewResponse } from '../view.js';
+import { messageOf, minifiedResult, toolAnnotations, truncateErrorMessage } from '@chrischall/mcp-utils';
 import type { ThumbtackClient } from '../client.js';
 import { extractNextData } from '../parse.js';
 import { proListOf } from '../normalize.js';
@@ -37,7 +38,7 @@ export function registerHealthcheckTools(server: McpServer, client: ThumbtackCli
       }
 
       const ok = Object.values(checks).every((c) => typeof c !== 'object' || c === null || (c as { ok?: boolean }).ok !== false);
-      return textResult({ ok, ...checks });
+      return minifiedResult({ ok, ...checks });
     },
   );
 }

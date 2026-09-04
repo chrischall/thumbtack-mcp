@@ -6,8 +6,9 @@
  * login, which no server-side client can pass.
  */
 import { z } from 'zod';
+import { isCompact, viewArg, viewResponse } from '../view.js';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { McpToolError, textResult, toolAnnotations } from '@chrischall/mcp-utils';
+import { McpToolError, minifiedResult, toolAnnotations } from '@chrischall/mcp-utils';
 import { type ThumbtackClient, WWW, slugify } from '../client.js';
 import { extractApolloState, extractNextData, localBusiness, servicePageOf } from '../parse.js';
 import { compactPro, credentialsOf, proListOf, reviewsOf, summaryOf } from '../normalize.js';
@@ -46,14 +47,11 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
       inputSchema: {
         service: z.string().min(1).describe('Trade or service, e.g. "house cleaning", "plumbing", "electrician". Loose names are canonicalised by Thumbtack.'),
         zip: UsZip.describe('5-digit US ZIP code to search near.'),
-        compact: z
-          .boolean()
-          .default(false)
-          .describe('Set true for slim summaries (name, rating, reviews, hires, response time, url). Default false returns the full upstream records, which are large and mostly tracking metadata.'),
+        view: viewArg(),
         limit: z.number().int().min(1).max(10).optional().describe('Cap the number of pros returned (upstream page size is 10).'),
       },
     },
-    async ({ service, zip, compact, limit }) => {
+    async ({ service, zip, view, limit }) => {
       const page = await client.searchPage(service, zip);
       const results = proListOf(extractNextData(page.html));
       const canonicalService = canonicalSlugOf(page.finalUrl);
@@ -62,7 +60,7 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
       // payload with a warning rather than a confidently-empty list.
       if (results === null) {
         process.stderr.write('[thumbtack-mcp] proListResults not found — returning raw payload\n');
-        return textResult({
+        return minifiedResult({
           warning: 'Unexpected response shape: proListResults was not found where it was verified to be. Returning the raw payload.',
           requestedService: service,
           canonicalService,
@@ -72,14 +70,14 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
       }
 
       const sliced = limit === undefined ? results : results.slice(0, limit);
-      return textResult({
+      return minifiedResult({
         requestedService: service,
         canonicalService,
         redirected: canonicalService !== null && canonicalService !== slugify(service),
         zip,
         url: page.finalUrl,
         count: sliced.length,
-        pros: compact ? sliced.map(compactPro) : sliced,
+        pros: isCompact(view) ? sliced.map(compactPro) : sliced,
       });
     },
   );
@@ -98,7 +96,7 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
     async ({ service, zip }) => {
       const page = await client.searchPage(service, zip);
       const canonical = canonicalSlugOf(page.finalUrl);
-      return textResult({
+      return minifiedResult({
         requested: service,
         requestedSlug: slugify(service),
         canonical,
@@ -129,13 +127,13 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
 
       if (summary === null && servicePage === null) {
         process.stderr.write('[thumbtack-mcp] neither ld+json nor Apollo state found on profile page\n');
-        return textResult({
+        return minifiedResult({
           warning: 'Unexpected response shape: this page carried neither a business ld+json node nor an Apollo servicePage.',
           url: page.finalUrl,
         });
       }
 
-      return textResult({
+      return minifiedResult({
         url: page.finalUrl,
         ...(summary ?? {}),
         credentials: credentialsOf(servicePage),
@@ -160,7 +158,7 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
       const page = await client.getPage(url);
       const business = localBusiness(page.html);
       const all = reviewsOf(business);
-      return textResult({
+      return minifiedResult({
         url: page.finalUrl,
         name: (business as { name?: string } | null)?.name ?? null,
         total: all.length,
@@ -186,7 +184,7 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
           hint: 'Thumbtack write paths sit behind a reCAPTCHA-gated login and cannot be driven server-side anyway.',
         });
       }
-      return textResult(await client.graphql(query, variables));
+      return minifiedResult(await client.graphql(query, variables));
     },
   );
 }

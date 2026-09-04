@@ -1,7 +1,7 @@
 {
   "name": "@chrischall/thumbtack-mcp",
   "version": "0.1.1",
-  "description": "MCP server for Thumbtack — search local service pros and read pro profiles, ratings, reviews and credentials.",
+  "description": "MCP server for Thumbtack \u2014 search local service pros and read pro profiles, ratings, reviews and credentials.",
   "type": "module",
   "mcpName": "io.github.chrischall/thumbtack-mcp",
   "repository": {
@@ -32,7 +32,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@chrischall/mcp-utils": "^0.18.0",
+    "@chrischall/mcp-utils": "^0.23.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "dotenv": "^17.4.2",
     "zod": "^4.4.3"
