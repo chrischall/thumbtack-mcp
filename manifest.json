@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "thumbtack-mcp",
   "display_name": "Thumbtack",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Unofficial Thumbtack MCP — search local service pros, read profiles, ratings and reviews. Anonymous, read-only.",
   "author": {
     "name": "Chris Chall"
