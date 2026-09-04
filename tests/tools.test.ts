@@ -52,8 +52,10 @@ describe('tool roster', () => {
 });
 
 describe('thumbtack_search_pros', () => {
-  // Fleet convention: `compact` is opt-IN, so full upstream records stay
-  // reachable by default and nothing is silently projected away.
+  // Fleet convention: the CHEAP rung is the default. `compact` used to be
+  // opt-in — the caller had to know the slim shape existed and ask for it —
+  // and an efficiency that must be requested is one that usually is not.
+  // `view: "full"` is now the way back to the untouched upstream records.
   it('returns full upstream records on view:"full"', async () => {
     const h = await harness();
     const out = parseToolResult<any>(await h.callTool('thumbtack_search_pros', { service: 'house cleaning', zip: '28203', view: 'full' }));
@@ -62,7 +64,7 @@ describe('thumbtack_search_pros', () => {
     await h.close();
   });
 
-  it('returns slim records when compact is true', async () => {
+  it('returns slim records by default, with no view passed', async () => {
     const h = await harness();
     const out = parseToolResult<any>(await h.callTool('thumbtack_search_pros', { service: 'house cleaning', zip: '28203' }));
     expect(out.pros[0].name).toBe('Andreia’s Cleaning LLC');
@@ -160,6 +162,62 @@ describe('thumbtack_graphql', () => {
     const r = await h.callTool('thumbtack_graphql', { query: 'mutation { doThing }' });
     expect(r.isError).toBe(true);
     expect(fake.graphql).not.toHaveBeenCalled();
+    await h.close();
+  });
+});
+
+/**
+ * The `view` wiring, driven through the registered RPC path.
+ *
+ * `viewResponse` had ZERO call sites when #32 was first opened — every read
+ * tool but one was left unwired, and the only thing that noticed was the
+ * coverage gate. Unit-testing the helper proves the helper works and says
+ * nothing about whether a tool reaches it, which is exactly how eventbrite-mcp
+ * shipped 12 of 26 tools wired with a green suite.
+ */
+describe('view wiring, end to end', () => {
+  const GQL = { data: { pro: { name: 'A', avatarUrl: 'https://cdn.thumbtack.com/a.jpg' } } };
+
+  it('strips media on the default rung', async () => {
+    fake.graphql.mockResolvedValue(GQL);
+    const h = await harness();
+    const out = parseToolResult<any>(await h.callTool('thumbtack_graphql', { query: 'query{__typename}' }));
+    expect(out.data.pro).toEqual({ name: 'A' });
+    await h.close();
+  });
+
+  it('keeps it on view:"full"', async () => {
+    fake.graphql.mockResolvedValue(GQL);
+    const h = await harness();
+    const out = parseToolResult<any>(
+      await h.callTool('thumbtack_graphql', { query: 'query{__typename}', view: 'full' }),
+    );
+    expect(out).toEqual(GQL);
+    await h.close();
+  });
+
+  // `view` is ours. It picks a response shape on the way out and means nothing
+  // to Thumbtack, so it must never appear in a request — the leak two sibling
+  // repos shipped via `{ ...args }` and `{ query: args }`.
+  it('never reaches Thumbtack', async () => {
+    const h = await harness();
+    await h.callTool('thumbtack_graphql', { query: 'query{__typename}', view: 'compact' });
+    await h.callTool('thumbtack_get_pro', { url: PRO_URL, view: 'compact' });
+    await h.callTool('thumbtack_get_pro_reviews', { url: PRO_URL, view: 'compact' });
+    const sent = [...fake.graphql.mock.calls, ...fake.getPage.mock.calls];
+    expect(sent.length).toBeGreaterThan(0);
+    expect(JSON.stringify(sent)).not.toContain('view');
+    await h.close();
+  });
+
+  // The drift branch: a profile page carrying neither ld+json nor Apollo state
+  // still answers through the rung, so the warning payload is shaped like every
+  // other response rather than bypassing the vocabulary.
+  it('routes the unexpected-shape warning through the rung too', async () => {
+    fake.getPage.mockResolvedValue({ html: '<html></html>', finalUrl: PRO_URL });
+    const h = await harness();
+    const out = parseToolResult<any>(await h.callTool('thumbtack_get_pro', { url: PRO_URL, view: 'full' }));
+    expect(out.warning).toContain('Unexpected response shape');
     await h.close();
   });
 });

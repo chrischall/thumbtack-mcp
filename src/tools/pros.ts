@@ -114,9 +114,10 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
       annotations: toolAnnotations({ title: 'Get pro profile' }),
       inputSchema: {
         url: z.string().min(1).describe('Full https://www.thumbtack.com/... pro profile URL.'),
+        view: viewArg(),
       },
     },
-    async ({ url }) => {
+    async ({ url, view }) => {
       assertProfileUrl(url);
       const page = await client.getPage(url);
       const servicePage = servicePageOf(extractApolloState(page.html));
@@ -127,13 +128,13 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
 
       if (summary === null && servicePage === null) {
         process.stderr.write('[thumbtack-mcp] neither ld+json nor Apollo state found on profile page\n');
-        return minifiedResult({
+        return viewResponse(view, {
           warning: 'Unexpected response shape: this page carried neither a business ld+json node nor an Apollo servicePage.',
           url: page.finalUrl,
         });
       }
 
-      return minifiedResult({
+      return viewResponse(view, {
         url: page.finalUrl,
         ...(summary ?? {}),
         credentials: credentialsOf(servicePage),
@@ -151,14 +152,15 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
       inputSchema: {
         url: z.string().min(1).describe('Full https://www.thumbtack.com/... pro profile URL.'),
         limit: z.number().int().min(1).max(100).optional().describe('Cap the number of reviews returned.'),
+        view: viewArg(),
       },
     },
-    async ({ url, limit }) => {
+    async ({ url, limit, view }) => {
       assertProfileUrl(url);
       const page = await client.getPage(url);
       const business = localBusiness(page.html);
       const all = reviewsOf(business);
-      return minifiedResult({
+      return viewResponse(view, {
         url: page.finalUrl,
         name: (business as { name?: string } | null)?.name ?? null,
         total: all.length,
@@ -176,15 +178,16 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
       inputSchema: {
         query: z.string().min(1).describe('A GraphQL query document. Must not contain a mutation or subscription.'),
         variables: z.record(z.string(), z.unknown()).optional().describe('Variables for the query.'),
+        view: viewArg(),
       },
     },
-    async ({ query, variables }) => {
+    async ({ query, variables, view }) => {
       if (/\b(mutation|subscription)\b/i.test(query)) {
         throw new McpToolError('This server is read-only; mutations and subscriptions are refused.', {
           hint: 'Thumbtack write paths sit behind a reCAPTCHA-gated login and cannot be driven server-side anyway.',
         });
       }
-      return minifiedResult(await client.graphql(query, variables));
+      return viewResponse(view, await client.graphql(query, variables));
     },
   );
 }

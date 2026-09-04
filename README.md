@@ -32,10 +32,16 @@ No configuration — there are no environment variables.
 | `thumbtack_graphql` | Escape hatch for arbitrary read-only GraphQL. Mutations refused. |
 | `thumbtack_healthcheck` | Probes the page and GraphQL surfaces separately and reports the response shape still matches. |
 
-`thumbtack_search_pros` returns the full upstream records by default; pass
-`compact: true` for slim summaries. The full records are large and mostly
-tracking metadata, so `compact: true` is usually what you want when an agent
-is browsing or ranking.
+Every read tool takes `view: "compact" | "full"`, and **`compact` is the
+default**. On `thumbtack_search_pros` that is a hand-written field projection;
+on `thumbtack_get_pro`, `thumbtack_get_pro_reviews` and `thumbtack_graphql` it
+strips image URLs, which needs no knowledge of the payload's shape. Pass
+`view: "full"` for the untouched upstream records — they are large and mostly
+tracking metadata, which is why the slim shape is what you get without asking.
+
+`thumbtack_resolve_service` and `thumbtack_healthcheck` take no `view`: both
+already answer with a handful of scalar fields, and a rung that cannot change
+anything is worse than no parameter.
 
 ## Shell-only alternative
 

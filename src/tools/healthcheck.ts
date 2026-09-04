@@ -1,6 +1,5 @@
 /** Liveness probe for the anonymous Thumbtack surface. */
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { isCompact, viewArg, viewResponse } from '../view.js';
 import { messageOf, minifiedResult, toolAnnotations, truncateErrorMessage } from '@chrischall/mcp-utils';
 import type { ThumbtackClient } from '../client.js';
 import { extractNextData } from '../parse.js';
