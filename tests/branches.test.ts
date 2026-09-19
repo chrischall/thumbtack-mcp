@@ -1,7 +1,7 @@
 /** Targeted coverage of the defensive branches the happy-path tests don't reach. */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createTestHarness, parseToolResult } from '@chrischall/mcp-utils/test';
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { McpServer } from '@modelcontextprotocol/server';
 import { ThumbtackClient } from '../src/client.js';
 import { registerProTools } from '../src/tools/pros.js';
 import { localBusiness, servicePageOf } from '../src/parse.js';
