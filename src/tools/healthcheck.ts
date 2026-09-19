@@ -1,5 +1,6 @@
 /** Liveness probe for the anonymous Thumbtack surface. */
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { McpServer } from '@modelcontextprotocol/server';
+import { z } from 'zod';
 import { messageOf, minifiedResult, toolAnnotations, truncateErrorMessage } from '@chrischall/mcp-utils';
 import type { ThumbtackClient } from '../client.js';
 import { extractNextData } from '../parse.js';
@@ -13,7 +14,7 @@ export function registerHealthcheckTools(server: McpServer, client: ThumbtackCli
       description:
         "Check that Thumbtack's anonymous surface is reachable and still has the response shape this server expects. Reports the server version, the HTML page probe and the GraphQL probe separately.",
       annotations: toolAnnotations({ title: 'Healthcheck' }),
-      inputSchema: {},
+      inputSchema: z.object({}),
     },
     async () => {
       const checks: Record<string, unknown> = { version: VERSION };
