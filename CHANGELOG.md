@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v0.2.2...thumbtack-mcp-v1.0.0) (2026-09-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* **mcp:** migrate server to SDK v2 ([#52](https://github.com/chrischall/thumbtack-mcp/issues/52))
+
+### Features
+
+* **mcp:** migrate server to SDK v2 ([#52](https://github.com/chrischall/thumbtack-mcp/issues/52)) ([8f4a407](https://github.com/chrischall/thumbtack-mcp/commit/8f4a4078184aaee0aef45173a931e04e93ad3390))
+
 ## [0.2.2](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v0.2.1...thumbtack-mcp-v0.2.2) (2026-09-14)
 
 
