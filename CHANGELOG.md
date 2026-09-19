@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.0.0...thumbtack-mcp-v1.1.0) (2026-09-19)
+
+
+### Features
+
+* **deps:** take mcp-utils 1.0.0, restoring server/discover ([#55](https://github.com/chrischall/thumbtack-mcp/issues/55)) ([034dc12](https://github.com/chrischall/thumbtack-mcp/commit/034dc12767f905ac21f16308aba6a689067e7678))
+
 ## [1.0.0](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v0.2.2...thumbtack-mcp-v1.0.0) (2026-09-19)
 
 
