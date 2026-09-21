@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.0...thumbtack-mcp-v1.1.1) (2026-09-21)
+
+
+### Bug Fixes
+
+* **deps:** Bump dotenv from 17.4.2 to 18.0.0 ([#60](https://github.com/chrischall/thumbtack-mcp/issues/60)) ([1464685](https://github.com/chrischall/thumbtack-mcp/commit/146468536dfdf5f1302dab7da386aa55d068426d))
+* **deps:** Bump zod in the production-dependencies group ([#59](https://github.com/chrischall/thumbtack-mcp/issues/59)) ([2d9a895](https://github.com/chrischall/thumbtack-mcp/commit/2d9a8956d7ceb18c494d2fc053fbc2fc7ff907da))
+
 ## [1.1.0](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.0.0...thumbtack-mcp-v1.1.0) (2026-09-19)
 
 
