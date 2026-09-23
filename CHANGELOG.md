@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.2](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.1...thumbtack-mcp-v1.1.2) (2026-09-23)
+
+
+### Bug Fixes
+
+* **deps:** require zod ^4.6.5 to match @chrischall/mcp-utils 2.4.0 ([#64](https://github.com/chrischall/thumbtack-mcp/issues/64)) ([a035f84](https://github.com/chrischall/thumbtack-mcp/commit/a035f843632e48c3e77c4bb0b98df6104b309680))
+* **deps:** upgrade @chrischall/mcp-utils to 2.4.0 and @fetchproxy/* to 3.2.0 ([#62](https://github.com/chrischall/thumbtack-mcp/issues/62)) ([f5a1038](https://github.com/chrischall/thumbtack-mcp/commit/f5a10384b859d74bbd8c97d22d3af7e59874b66b))
+
 ## [1.1.1](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.0...thumbtack-mcp-v1.1.1) (2026-09-21)
 
 
