@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.2...thumbtack-mcp-v1.1.3) (2026-09-24)
+
+
+### Bug Fixes
+
+* **deps:** Bump dotenv in the production-dependencies group ([#67](https://github.com/chrischall/thumbtack-mcp/issues/67)) ([789daa3](https://github.com/chrischall/thumbtack-mcp/commit/789daa3b6fb0db0f12e4d9b5379c7d1f672661b5))
+
 ## [1.1.2](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.1...thumbtack-mcp-v1.1.2) (2026-09-23)
 
 
