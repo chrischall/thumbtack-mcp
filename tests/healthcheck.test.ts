@@ -2,8 +2,17 @@ import { readFileSync } from 'node:fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createTestHarness, parseToolResult } from '@chrischall/mcp-utils/test';
 import type { McpServer } from '@modelcontextprotocol/server';
-import { registerHealthcheckTools } from '../src/tools/healthcheck.js';
+import { probeFailure, registerHealthcheckTools } from '../src/tools/healthcheck.js';
 import type { ThumbtackClient } from '../src/client.js';
+import {
+  ApiError,
+  BotWallError,
+  EdgeBlockedError,
+  McpToolError,
+  RateLimitError,
+  RequestTimeoutError,
+  UnreachableError,
+} from '@chrischall/mcp-utils';
 
 const searchHtml = readFileSync(new URL('./fixtures/search.html', import.meta.url).pathname, 'utf8');
 
@@ -64,5 +73,92 @@ describe('thumbtack_healthcheck', () => {
     const out = parseToolResult<any>(await h.callTool('thumbtack_healthcheck'));
     expect(out.graphql.ok).toBe(false);
     await h.close();
+  });
+  // chrischall/mcp-host#1015: every failing probe names a kind, and a block is edge_blocked.
+  it('reports a blocked page probe as edge_blocked with its vendor', async () => {
+    fake.searchPage.mockRejectedValue(new EdgeBlockedError(403, 'CloudFront', { service: 'Thumbtack' }));
+    const h = await harness();
+    const out = parseToolResult<any>(await h.callTool('thumbtack_healthcheck'));
+    expect(out.ok).toBe(false);
+    expect(out.searchPage).toMatchObject({ ok: false, kind: 'edge_blocked', vendor: 'CloudFront' });
+    expect(out.searchPage.detail).not.toMatch(/moved/i);
+    expect(out.graphql.ok).toBe(true);
+    await h.close();
+  });
+
+  it('reports a blocked graphql probe as edge_blocked', async () => {
+    fake.graphql.mockRejectedValue(new EdgeBlockedError(403, 'Cloudflare', { service: 'Thumbtack' }));
+    const h = await harness();
+    const out = parseToolResult<any>(await h.callTool('thumbtack_healthcheck'));
+    expect(out.graphql).toMatchObject({ ok: false, kind: 'edge_blocked', vendor: 'Cloudflare' });
+    await h.close();
+  });
+
+  it('reports a 200 Cloudflare challenge (BotWallError) as edge_blocked', async () => {
+    fake.searchPage.mockRejectedValue(new BotWallError('https://x', 30, { vendor: 'Cloudflare' }));
+    const h = await harness();
+    const out = parseToolResult<any>(await h.callTool('thumbtack_healthcheck'));
+    expect(out.searchPage).toMatchObject({ ok: false, kind: 'edge_blocked', vendor: 'Cloudflare' });
+    await h.close();
+  });
+
+  it('control: a genuine 404 is kind http, not edge_blocked', async () => {
+    fake.searchPage.mockRejectedValue(
+      new McpToolError('Thumbtack returned HTTP 404 for https://x', { hint: 'The page may have moved or the service slug may not exist.' }),
+    );
+    const h = await harness();
+    const out = parseToolResult<any>(await h.callTool('thumbtack_healthcheck'));
+    expect(out.searchPage).toMatchObject({ ok: false, kind: 'http' });
+    await h.close();
+  });
+
+  it('control: a transport failure is kind transport', async () => {
+    fake.searchPage.mockRejectedValue(new UnreachableError('Thumbtack (https://x): ECONNREFUSED'));
+    const h = await harness();
+    const out = parseToolResult<any>(await h.callTool('thumbtack_healthcheck'));
+    expect(out.searchPage).toMatchObject({ ok: false, kind: 'transport' });
+    await h.close();
+  });
+
+  it('names SSR shape drift and an unexpected typename as shape_changed', async () => {
+    fake.searchPage.mockResolvedValue({ html: '<html></html>', finalUrl: 'https://x' });
+    fake.graphql.mockResolvedValue({ __typename: 'Nope' });
+    const h = await harness();
+    const out = parseToolResult<any>(await h.callTool('thumbtack_healthcheck'));
+    expect(out.searchPage.kind).toBe('shape_changed');
+    expect(out.graphql.kind).toBe('shape_changed');
+    await h.close();
+  });
+
+  it('reports a passing probe with kind ok', async () => {
+    const h = await harness();
+    const out = parseToolResult<any>(await h.callTool('thumbtack_healthcheck'));
+    expect(out.searchPage.kind).toBe('ok');
+    expect(out.graphql.kind).toBe('ok');
+    await h.close();
+  });
+});
+
+describe('probeFailure', () => {
+  it('names a vendorless bot wall as edge_blocked without inventing a vendor', () => {
+    const out = probeFailure(new BotWallError('https://x'));
+    expect(out.kind).toBe('edge_blocked');
+    expect(out).not.toHaveProperty('vendor');
+  });
+
+  it('names a timeout and a rate limit', () => {
+    expect(probeFailure(new RequestTimeoutError('Thumbtack', 30_000)).kind).toBe('timeout');
+    expect(probeFailure(new RateLimitError('Thumbtack', 5)).kind).toBe('rate_limited');
+  });
+
+  it('finds an edge block in a foreign error message that kept the refusal page', () => {
+    const out = probeFailure(new Error('HTTP 403: <TITLE>ERROR: The request could not be satisfied</TITLE>'));
+    expect(out).toMatchObject({ kind: 'edge_blocked', vendor: 'CloudFront' });
+  });
+
+  it('control: an ApiError with no edge marker is http, and anything else is unknown', () => {
+    expect(probeFailure(new ApiError(500, 'Thumbtack returned 500')).kind).toBe('http');
+    expect(probeFailure(new UnreachableError('Thumbtack', 502)).kind).toBe('http');
+    expect(probeFailure('weird').kind).toBe('unknown');
   });
 });
