@@ -30,7 +30,7 @@ No configuration — there are no environment variables.
 | `thumbtack_get_pro` | A pro's profile: name, description, location, aggregate rating, credentials, section inventory. |
 | `thumbtack_get_pro_reviews` | Reviews on a pro's profile — stars, author, date, text. |
 | `thumbtack_graphql` | Escape hatch for arbitrary read-only GraphQL. Mutations refused. |
-| `thumbtack_healthcheck` | Probes the page and GraphQL surfaces separately and reports the response shape still matches. |
+| `thumbtack_healthcheck` | Probes the page and GraphQL surfaces separately and reports the response shape still matches; each probe names a `kind`, and a CDN/WAF refusal page is `edge_blocked`. |
 
 Every read tool takes `view: "compact" | "full"`, and **`compact` is the
 default**. On `thumbtack_search_pros` that is a hand-written field projection;

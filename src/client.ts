@@ -8,7 +8,16 @@
  * no-auth read: the server boots and serves `tools/list` unconditionally, and
  * there is no deferred config error to raise.
  */
-import { BotWallError, McpToolError, UnreachableError, isCloudflareChallenge, messageOf, truncateErrorMessage } from '@chrischall/mcp-utils';
+import {
+  BotWallError,
+  EdgeBlockedError,
+  McpToolError,
+  UnreachableError,
+  detectEdgeBlock,
+  isCloudflareChallenge,
+  messageOf,
+  truncateErrorMessage,
+} from '@chrischall/mcp-utils';
 import { createGraphqlClient, type GraphqlClient } from '@chrischall/mcp-utils/graphql';
 
 export const WWW = 'https://www.thumbtack.com';
@@ -73,6 +82,13 @@ export class ThumbtackClient {
     const res = await this.#request(url, { method: 'GET' });
     const html = await res.text();
     if (!res.ok) {
+      // A CDN/WAF refusal page (CloudFront, Cloudflare, Akamai, Imperva) is a
+      // block on this host, not a missing page — name it before the generic
+      // "may have moved" reading (chrischall/mcp-host#1015).
+      const edge = detectEdgeBlock({ body: html, headers: res.headers, status: res.status });
+      if (edge !== null) {
+        throw new EdgeBlockedError(res.status, edge.vendor, { service: 'Thumbtack', method: 'GET', path: url });
+      }
       throw new McpToolError(`Thumbtack returned HTTP ${res.status} for ${url}`, {
         hint: 'The page may have moved or the service slug may not exist.',
       });
