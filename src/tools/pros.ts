@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { isCompact, viewArg, viewResponse } from '../view.js';
 import type { McpServer } from '@modelcontextprotocol/server';
 import { McpToolError, minifiedResult, toolAnnotations } from '@chrischall/mcp-utils';
+import { isReadOnlyGraphqlDocument } from '@chrischall/mcp-utils/graphql';
 import { type ThumbtackClient, WWW, slugify } from '../client.js';
 import { extractApolloState, extractNextData, localBusiness, servicePageOf } from '../parse.js';
 import { compactPro, credentialsOf, proListOf, reviewsOf, summaryOf } from '../normalize.js';
@@ -182,7 +183,10 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
       }),
     },
     async ({ query, variables, view }) => {
-      if (/\b(mutation|subscription)\b/i.test(query)) {
+      // A real lexer, not a word regex: a comment or string saying "mutation"
+      // is a read, while a mutation after a fragment — or a document that
+      // does not parse — is refused.
+      if (!isReadOnlyGraphqlDocument(query)) {
         throw new McpToolError('This server is read-only; mutations and subscriptions are refused.', {
           hint: 'Thumbtack write paths sit behind a reCAPTCHA-gated login and cannot be driven server-side anyway.',
         });

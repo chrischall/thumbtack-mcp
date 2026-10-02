@@ -68,7 +68,7 @@ describe('client edge cases', () => {
   it('labels a graphql error with no message as unknown', async () => {
     const fetchMock = vi.fn().mockResolvedValue(withUrl(res(JSON.stringify({ errors: [{}] })), 'https://app.thumbtack.com/graphql'));
     const c = new ThumbtackClient({ fetchImpl: fetchMock as unknown as typeof fetch });
-    await expect(c.graphql('query{a}')).rejects.toThrow(/unknown/);
+    await expect(c.graphql('query{a}')).rejects.toThrow(/unknown/i);
   });
 });
 

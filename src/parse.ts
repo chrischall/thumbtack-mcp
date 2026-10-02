@@ -7,11 +7,16 @@
  * Verified in docs/THUMBTACK-API.md: search pages carry `__NEXT_DATA__` only;
  * profile pages carry `window.__APOLLO_STATE__` + `ld+json` only.
  */
-import { extractJsonAfterMarker, extractJsonLdBlocks } from '@chrischall/mcp-utils';
+import { extractJsonAfterMarker, extractJsonLdBlocks, extractNextData as nextDataOf } from '@chrischall/mcp-utils';
 
-/** `__NEXT_DATA__` from a search page, or `null` if this page has none. */
+/**
+ * `__NEXT_DATA__` from a search page, or `null` if this page has none (or it
+ * is not valid JSON). Tag-bounded and linear: only the real
+ * `<script id="__NEXT_DATA__">` body is read, never the marker text appearing
+ * inside some other script (fleet-audit#1145).
+ */
 export function extractNextData(html: string): unknown {
-  return extractJsonAfterMarker(html, 'id="__NEXT_DATA__"');
+  return nextDataOf(html) ?? null;
 }
 
 /**

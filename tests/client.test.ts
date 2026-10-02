@@ -81,6 +81,25 @@ describe('graphql', () => {
     await expect(client.graphql('query{x}')).rejects.toThrow(/badRequest/);
   });
 
+  it('sends the browser User-Agent and JSON content-type on the GraphQL POST', async () => {
+    fetchMock.mockResolvedValue(res(JSON.stringify({ data: { __typename: 'Query' } }), { contentType: 'application/json' }));
+    await client.graphql('query{__typename}');
+    const init = fetchMock.mock.calls[0][1];
+    expect(String(init.headers['user-agent'])).toMatch(/Mozilla/);
+    expect(init.headers['content-type']).toBe('application/json');
+  });
+
+  it('keeps the servicePage hint on an errors[] answer', async () => {
+    fetchMock.mockResolvedValue(res(JSON.stringify({ errors: [{ message: 'badRequest' }] }), { contentType: 'application/json' }));
+    const err = await client.graphql('query{x}').catch((e: unknown) => e);
+    expect((err as { hint?: string }).hint).toMatch(/servicePage/);
+  });
+
+  it('reports a transport failure as a Thumbtack request failure', async () => {
+    fetchMock.mockRejectedValue(new Error('ECONNRESET'));
+    await expect(client.graphql('query{x}')).rejects.toThrow(/Thumbtack.*ECONNRESET/);
+  });
+
   it('does not blindly JSON.parse a non-JSON body', async () => {
     fetchMock.mockResolvedValue(withUrl(res('<html>challenge</html>'), 'https://app.thumbtack.com/graphql'));
     await expect(client.graphql('query{x}')).rejects.toThrow(/json|html|unexpected/i);

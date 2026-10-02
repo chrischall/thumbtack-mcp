@@ -63,3 +63,23 @@ describe('servicePageOf', () => {
     expect(servicePageOf(null)).toBeNull();
   });
 });
+
+describe('extractNextData (tag-bounded, fleet-audit#1145)', () => {
+  it('reads the blob from the real <script id="__NEXT_DATA__"> tag, not a marker anywhere in the page', () => {
+    // The marker text inside ANOTHER script used to match first: the
+    // marker-anywhere extractor then parsed the decoy object.
+    const html =
+      '<script>var s = \'id="__NEXT_DATA__" {"decoy":true}\';</script>' +
+      '<script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"real":1}}}</script>';
+    expect(extractNextData(html)).toEqual({ props: { pageProps: { real: 1 } } });
+  });
+  it('returns null (not undefined) for invalid JSON so callers keep their null contract', () => {
+    expect(extractNextData('<script id="__NEXT_DATA__">{not json</script>')).toBeNull();
+  });
+  it('is linear on a hostile page of unterminated <script openers', () => {
+    const hostile = '<script '.repeat(50_000);
+    const t0 = performance.now();
+    expect(extractNextData(hostile)).toBeNull();
+    expect(performance.now() - t0).toBeLessThan(1000);
+  });
+});
