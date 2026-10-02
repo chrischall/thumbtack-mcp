@@ -157,6 +157,32 @@ describe('thumbtack_graphql', () => {
     await h.close();
   });
 
+  it('allows a read whose comment or string argument merely says "mutation" (fleet-audit#1128)', async () => {
+    const h = await harness();
+    const r = await h.callTool('thumbtack_graphql', {
+      query: '# not a mutation\nquery { search(q: "subscription boxes") { id } }',
+    });
+    expect(r.isError).toBeFalsy();
+    expect(fake.graphql).toHaveBeenCalledTimes(1);
+    await h.close();
+  });
+
+  it('rejects a mutation hidden behind a fragment', async () => {
+    const h = await harness();
+    const r = await h.callTool('thumbtack_graphql', { query: 'fragment F on Pro { id } mutation M { doThing }' });
+    expect(r.isError).toBe(true);
+    expect(fake.graphql).not.toHaveBeenCalled();
+    await h.close();
+  });
+
+  it('rejects a document it cannot parse rather than guessing it is a read', async () => {
+    const h = await harness();
+    const r = await h.callTool('thumbtack_graphql', { query: 'query { a(s: "unterminated) }' });
+    expect(r.isError).toBe(true);
+    expect(fake.graphql).not.toHaveBeenCalled();
+    await h.close();
+  });
+
   it('rejects a mutation — this server is read-only', async () => {
     const h = await harness();
     const r = await h.callTool('thumbtack_graphql', { query: 'mutation { doThing }' });

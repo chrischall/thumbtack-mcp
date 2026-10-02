@@ -9,6 +9,7 @@
  * there is no deferred config error to raise.
  */
 import { BotWallError, McpToolError, UnreachableError, isCloudflareChallenge, messageOf, truncateErrorMessage } from '@chrischall/mcp-utils';
+import { createGraphqlClient, type GraphqlClient } from '@chrischall/mcp-utils/graphql';
 
 export const WWW = 'https://www.thumbtack.com';
 export const GRAPHQL_ENDPOINT = 'https://app.thumbtack.com/graphql';
@@ -39,10 +40,19 @@ export function slugify(service: string): string {
 export class ThumbtackClient {
   readonly #fetch: typeof fetch;
   readonly #timeoutMs: number;
+  readonly #gql: GraphqlClient;
 
   constructor(opts: ThumbtackClientOptions = {}) {
     this.#fetch = opts.fetchImpl ?? globalThis.fetch.bind(globalThis);
     this.#timeoutMs = opts.timeoutMs ?? 30_000;
+    this.#gql = createGraphqlClient({
+      endpoint: GRAPHQL_ENDPOINT,
+      serviceName: 'Thumbtack',
+      headers: { 'user-agent': USER_AGENT, origin: WWW },
+      timeout: this.#timeoutMs,
+      fetchImpl: this.#fetch,
+      errorHint: '`servicePage` requires its full input object — a partial input returns badRequest even when the query validates.',
+    });
   }
 
   async #request(url: string, init: RequestInit): Promise<Response> {
@@ -84,34 +94,16 @@ export class ThumbtackClient {
   }
 
   /**
-   * Issue an anonymous GraphQL query.
+   * Issue an anonymous GraphQL query via the shared `@chrischall/mcp-utils/graphql`
+   * transport (fleet-audit#1128).
    *
    * This API answers **HTTP 200 with an `errors[]` body**, so status alone is
-   * never sufficient — and a non-JSON 2xx is a challenge page, not data.
+   * never sufficient — and a non-JSON 2xx is a challenge page, not data. The
+   * shared client handles both, plus CDN/WAF detection, a 429 retry and the
+   * caller's cancellation.
    */
   async graphql(query: string, variables?: Record<string, unknown>): Promise<unknown> {
-    const res = await this.#request(GRAPHQL_ENDPOINT, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', origin: WWW },
-      body: JSON.stringify(variables === undefined ? { query } : { query, variables }),
-    });
-    const body = await res.text();
-    let parsed: { data?: unknown; errors?: { message?: string }[] };
-    try {
-      parsed = JSON.parse(body);
-    } catch {
-      throw new McpToolError(
-        `Thumbtack GraphQL returned a non-JSON body (HTTP ${res.status}) — this is usually a challenge or error page, not data.`,
-        { hint: 'Retry shortly. If it persists, the endpoint or its request shape has changed.' },
-      );
-    }
-    if (parsed.errors?.length) {
-      const detail = parsed.errors.map((e) => e?.message ?? 'unknown').join('; ');
-      throw new McpToolError(`Thumbtack GraphQL error: ${truncateErrorMessage(detail)}`, {
-        hint: '`servicePage` requires its full input object — a partial input returns badRequest even when the query validates.',
-      });
-    }
-    return parsed.data;
+    return this.#gql.request(query, variables);
   }
 }
 
