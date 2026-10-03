@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.4](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.3...thumbtack-mcp-v1.1.4) (2026-10-03)
+
+
+### Bug Fixes
+
+* **client:** report a CDN/WAF block page as edge_blocked, not "page may have moved" ([#76](https://github.com/chrischall/thumbtack-mcp/issues/76)) ([fb60ee5](https://github.com/chrischall/thumbtack-mcp/commit/fb60ee5e2512393ecd5707703cb4d597080fe577))
+* **deps:** adopt @chrischall/mcp-utils 2.12.0 graphql transport and scrape helpers ([#75](https://github.com/chrischall/thumbtack-mcp/issues/75)) ([ca5bcb1](https://github.com/chrischall/thumbtack-mcp/commit/ca5bcb159aae7950b86200590efc8c36cf73a604))
+* **deps:** bump @chrischall/mcp-utils to 2.10.0 ([#74](https://github.com/chrischall/thumbtack-mcp/issues/74)) ([8341e3c](https://github.com/chrischall/thumbtack-mcp/commit/8341e3c4e7feca312421ac14d037aff1ff5ec1c4))
+* **deps:** bump @chrischall/mcp-utils to 2.13.0 ([#77](https://github.com/chrischall/thumbtack-mcp/issues/77)) ([c485690](https://github.com/chrischall/thumbtack-mcp/commit/c4856908169b707965dc84bcb07d2cd03997606d))
+* **deps:** Bump the production-dependencies group with 3 updates ([#70](https://github.com/chrischall/thumbtack-mcp/issues/70)) ([b9ab7b0](https://github.com/chrischall/thumbtack-mcp/commit/b9ab7b07b91d916a88fd4fb690f746a2455cc616))
+* report CDN/WAF blocks as edge_blocked, not a rejected credential (mcp-utils 2.9.0) ([#72](https://github.com/chrischall/thumbtack-mcp/issues/72)) ([8e462f0](https://github.com/chrischall/thumbtack-mcp/commit/8e462f04e9927423fd07cb66c8e081bffbf4fdae))
+
 ## [1.1.3](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.2...thumbtack-mcp-v1.1.3) (2026-09-24)
 
 
