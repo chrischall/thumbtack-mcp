@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.5](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.4...thumbtack-mcp-v1.1.5) (2026-10-05)
+
+
+### Bug Fixes
+
+* **deps:** Bump dotenv ([#80](https://github.com/chrischall/thumbtack-mcp/issues/80)) ([6a4e463](https://github.com/chrischall/thumbtack-mcp/commit/6a4e463e20d721581cb3330e62c16ed1c306390c))
+* **deps:** require @chrischall/mcp-utils 2.14.0 and MCP SDK 2.3.0 ([#82](https://github.com/chrischall/thumbtack-mcp/issues/82)) ([4e69455](https://github.com/chrischall/thumbtack-mcp/commit/4e69455d5a244ad3c34bb695d4e7dc9faf9abd5a))
+
 ## [1.1.4](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.3...thumbtack-mcp-v1.1.4) (2026-10-03)
 
 
