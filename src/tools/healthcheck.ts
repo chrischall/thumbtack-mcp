@@ -48,7 +48,7 @@ export function registerHealthcheckTools(server: McpServer, client: ThumbtackCli
     {
       description:
         "Check that Thumbtack's anonymous surface is reachable and still has the response shape this server expects. Reports the server version, the HTML page probe and the GraphQL probe separately, each with a `kind` (ok, edge_blocked, http, transport, timeout, rate_limited, shape_changed, unknown).",
-      annotations: toolAnnotations({ title: 'Healthcheck' }),
+      annotations: toolAnnotations({ title: 'Healthcheck', openWorld: true }),
       inputSchema: z.object({}),
     },
     async () => {
