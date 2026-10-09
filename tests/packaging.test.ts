@@ -6,7 +6,7 @@
  * or does not match the building repo. That failure surfaces only after a tag
  * and a GitHub Release already exist, so it is worth asserting here.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url).pathname, 'utf8'));
@@ -46,5 +46,22 @@ describe('manifest.json tool catalogue (fleet-audit#1127)', () => {
     const listed = (manifest.tools ?? []) as { name: string; description?: string }[];
     expect(listed.map((t) => t.name).sort()).toEqual(registered);
     for (const t of listed) expect(t.description, t.name).toBeTruthy();
+  });
+});
+
+describe('.claude-plugin/plugin.json', () => {
+  // Claude Code reads the plugin's MCP config from `mcpServers`; an `mcp` key is
+  // ignored at load time (`claude plugin validate`: "Unknown field 'mcp'").
+  const plugin = JSON.parse(
+    readFileSync(new URL('../.claude-plugin/plugin.json', import.meta.url).pathname, 'utf8'),
+  );
+
+  it('declares its MCP config under mcpServers, not the ignored mcp key', () => {
+    expect(plugin).not.toHaveProperty('mcp');
+    expect(plugin.mcpServers).toBe('./.mcp.json');
+  });
+
+  it('points mcpServers at a file that exists', () => {
+    expect(existsSync(new URL(`../${plugin.mcpServers}`, import.meta.url).pathname)).toBe(true);
   });
 });
