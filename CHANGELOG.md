@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.1.7](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.6...thumbtack-mcp-v1.1.7) (2026-10-09)
+
+
+### Bug Fixes
+
+* annotate tools truthfully and sync manifests with the served tools ([#89](https://github.com/chrischall/thumbtack-mcp/issues/89)) ([96a28a6](https://github.com/chrischall/thumbtack-mcp/commit/96a28a68df3da27b973ec5032246ff5fb4f74de7))
+* declare the plugin MCP config under the mcpServers key Claude Code reads ([#90](https://github.com/chrischall/thumbtack-mcp/issues/90)) ([2b2cecc](https://github.com/chrischall/thumbtack-mcp/commit/2b2cecc8dd367ff95a67d5b1c940c92b16bbcb1e))
+* **deps:** Bump source-map-js ([#88](https://github.com/chrischall/thumbtack-mcp/issues/88)) ([7490553](https://github.com/chrischall/thumbtack-mcp/commit/74905530307397d999af4309c5ad8704197e013a))
+* **deps:** update @chrischall/mcp-utils to 3.0.0 ([#87](https://github.com/chrischall/thumbtack-mcp/issues/87)) ([0ce363a](https://github.com/chrischall/thumbtack-mcp/commit/0ce363a249bbf3576e180d2e0526edd82bcbd0b9))
+* resolve low-severity audit findings ([#85](https://github.com/chrischall/thumbtack-mcp/issues/85)) ([632e43d](https://github.com/chrischall/thumbtack-mcp/commit/632e43d44923f66c90d24cfabfd549323ce748df))
+
 ## [1.1.6](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.5...thumbtack-mcp-v1.1.6) (2026-10-07)
 
 
