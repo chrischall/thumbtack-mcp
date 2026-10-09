@@ -167,3 +167,20 @@ describe('graphql', () => {
     await expect(client.graphql('query{x}')).rejects.toThrow(/json|html|unexpected/i);
   });
 });
+
+describe('cancellation (fleet-audit#767)', () => {
+  it('getPage aborts its fetch when the tool call is cancelled, not only on timeout', async () => {
+    const { withCallSignal } = await import('@chrischall/mcp-utils');
+    const caller = new AbortController();
+    let seen: AbortSignal | undefined;
+    fetchMock.mockImplementation(async (_url: string, init: RequestInit) => {
+      seen = init.signal ?? undefined;
+      return withUrl(res('<html>ok</html>'), 'https://www.thumbtack.com/x');
+    });
+    await withCallSignal(caller.signal, () => client.getPage('https://www.thumbtack.com/x'));
+    expect(seen).toBeDefined();
+    expect(seen!.aborted).toBe(false);
+    caller.abort(new Error('cancelled'));
+    expect(seen!.aborted).toBe(true);
+  });
+});

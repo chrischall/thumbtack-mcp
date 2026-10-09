@@ -17,6 +17,7 @@ import {
   isCloudflareChallenge,
   messageOf,
   truncateErrorMessage,
+  withAmbientCancellation,
 } from '@chrischall/mcp-utils';
 import { createGraphqlClient, type GraphqlClient } from '@chrischall/mcp-utils/graphql';
 
@@ -69,7 +70,9 @@ export class ThumbtackClient {
       return await this.#fetch(url, {
         ...init,
         redirect: 'follow',
-        signal: AbortSignal.timeout(this.#timeoutMs),
+        // The timeout bounds a stuck upstream; the ambient signal is the tool
+        // call's own cancellation, so a cancelled read stops downloading now.
+        signal: withAmbientCancellation(AbortSignal.timeout(this.#timeoutMs)),
         headers: { 'user-agent': USER_AGENT, ...(init.headers as Record<string, string>) },
       });
     } catch (err) {
