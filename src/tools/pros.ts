@@ -23,7 +23,14 @@ function canonicalSlugOf(finalUrl: string): string | null {
   return finalUrl.match(/\/k\/([^/?#]+)\//)?.[1] ?? null;
 }
 
-/** Profile URLs must be on thumbtack.com — never fetch an arbitrary host on request. */
+/** The only host a profile fetch may start on or land on. */
+const PROFILE_HOST = new URL(WWW).hostname;
+
+/**
+ * Profile URLs must be on www.thumbtack.com — never fetch an arbitrary host on
+ * request. Pinned to the one host, not `*.thumbtack.com`: a subdomain CNAMEd to
+ * third-party SaaS is not Thumbtack's content (fleet-audit#768).
+ */
 function assertProfileUrl(url: string): void {
   let parsed: URL;
   try {
@@ -31,8 +38,21 @@ function assertProfileUrl(url: string): void {
   } catch {
     throw new McpToolError(`Not a valid URL: ${url}`, { hint: 'Pass a full https://www.thumbtack.com/... profile URL.' });
   }
-  if (parsed.protocol !== 'https:' || !/(^|\.)thumbtack\.com$/.test(parsed.hostname)) {
+  if (parsed.protocol !== 'https:' || parsed.hostname !== PROFILE_HOST) {
     throw new McpToolError(`Refusing to fetch ${parsed.hostname} — only https://www.thumbtack.com URLs are allowed.`, {
+      hint: 'Use the `url` returned by thumbtack_search_pros.',
+    });
+  }
+}
+
+/**
+ * Redirects are followed, so re-check where the fetch actually landed before
+ * parsing anything: an open redirect on www.thumbtack.com must not feed another
+ * host's ld+json into the agent's context.
+ */
+function assertLandedOnThumbtack(finalUrl: string): void {
+  if (new URL(finalUrl).hostname !== PROFILE_HOST) {
+    throw new McpToolError(`Refusing to read ${finalUrl} — the profile URL redirected off www.thumbtack.com.`, {
       hint: 'Use the `url` returned by thumbtack_search_pros.',
     });
   }
@@ -121,6 +141,7 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
     async ({ url, view }) => {
       assertProfileUrl(url);
       const page = await client.getPage(url);
+      assertLandedOnThumbtack(page.finalUrl);
       const servicePage = servicePageOf(extractApolloState(page.html));
       const summary = summaryOf(localBusiness(page.html));
       const sections = Array.isArray((servicePage as { sections?: unknown[] } | null)?.sections)
@@ -159,6 +180,7 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
     async ({ url, limit, view }) => {
       assertProfileUrl(url);
       const page = await client.getPage(url);
+      assertLandedOnThumbtack(page.finalUrl);
       const business = localBusiness(page.html);
       const all = reviewsOf(business);
       return viewResponse(view, {

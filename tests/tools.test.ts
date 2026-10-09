@@ -247,3 +247,25 @@ describe('view wiring, end to end', () => {
     await h.close();
   });
 });
+
+describe('profile URL host pinning (fleet-audit#768)', () => {
+  it.each(['thumbtack_get_pro', 'thumbtack_get_pro_reviews'])('%s refuses a non-www thumbtack.com subdomain without fetching', async (tool) => {
+    const h = await harness();
+    const r = await h.callTool(tool, { url: 'https://app.thumbtack.com/nc/charlotte/x/service/1' });
+    expect(r.isError).toBe(true);
+    expect(JSON.stringify(r.content)).toMatch(/app\.thumbtack\.com/);
+    expect(fake.getPage).not.toHaveBeenCalled();
+    await h.close();
+  });
+
+  it.each(['thumbtack_get_pro', 'thumbtack_get_pro_reviews'])('%s refuses to parse a page that redirected off www.thumbtack.com', async (tool) => {
+    fake.getPage.mockResolvedValue({ html: proHtml, finalUrl: 'https://evil.example/landing' });
+    const h = await harness();
+    const r = await h.callTool(tool, { url: PRO_URL });
+    expect(r.isError).toBe(true);
+    const text = JSON.stringify(r.content);
+    expect(text).toMatch(/evil\.example/);
+    expect(text).not.toMatch(/Andreia/);
+    await h.close();
+  });
+});
