@@ -17,6 +17,7 @@ import {
   isCloudflareChallenge,
   messageOf,
   truncateErrorMessage,
+  withAmbientCancellation,
 } from '@chrischall/mcp-utils';
 import { createGraphqlClient, type GraphqlClient } from '@chrischall/mcp-utils/graphql';
 
@@ -38,9 +39,14 @@ export interface ThumbtackClientOptions {
   timeoutMs?: number;
 }
 
-/** `Lawn Mowing & Trimming` -> `lawn-mowing-trimming` */
+/**
+ * `Lawn Mowing & Trimming` -> `lawn-mowing-trimming`; `Café` -> `cafe`.
+ * NFKD-folds diacritics first so accented letters survive as their base letter.
+ */
 export function slugify(service: string): string {
   return service
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
@@ -69,7 +75,9 @@ export class ThumbtackClient {
       return await this.#fetch(url, {
         ...init,
         redirect: 'follow',
-        signal: AbortSignal.timeout(this.#timeoutMs),
+        // The timeout bounds a stuck upstream; the ambient signal is the tool
+        // call's own cancellation, so a cancelled read stops downloading now.
+        signal: withAmbientCancellation(AbortSignal.timeout(this.#timeoutMs)),
         headers: { 'user-agent': USER_AGENT, ...(init.headers as Record<string, string>) },
       });
     } catch (err) {
@@ -101,7 +109,14 @@ export class ThumbtackClient {
 
   /** The verified search URL for a service + zip. Loose slugs redirect to canonical ones. */
   searchUrl(service: string, zip: string): string {
-    return `${WWW}/k/${slugify(service)}/near-me?zip_code=${encodeURIComponent(zip)}`;
+    const slug = slugify(service);
+    if (slug === '') {
+      // An empty slug builds `/k//near-me`, which 404s as a confusing "slug may not exist".
+      throw new McpToolError(`"${service}" has no letters or digits to build a Thumbtack service slug from.`, {
+        hint: 'Name the service in English, e.g. "plumbing" or "house cleaning".',
+      });
+    }
+    return `${WWW}/k/${slug}/near-me?zip_code=${encodeURIComponent(zip)}`;
   }
 
   /** Fetch a search page. `finalUrl` carries the canonical slug. */

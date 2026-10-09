@@ -167,3 +167,36 @@ describe('graphql', () => {
     await expect(client.graphql('query{x}')).rejects.toThrow(/json|html|unexpected/i);
   });
 });
+
+describe('cancellation (fleet-audit#767)', () => {
+  it('getPage aborts its fetch when the tool call is cancelled, not only on timeout', async () => {
+    const { withCallSignal } = await import('@chrischall/mcp-utils');
+    const caller = new AbortController();
+    let seen: AbortSignal | undefined;
+    fetchMock.mockImplementation(async (_url: string, init: RequestInit) => {
+      seen = init.signal ?? undefined;
+      return withUrl(res('<html>ok</html>'), 'https://www.thumbtack.com/x');
+    });
+    await withCallSignal(caller.signal, () => client.getPage('https://www.thumbtack.com/x'));
+    expect(seen).toBeDefined();
+    expect(seen!.aborted).toBe(false);
+    caller.abort(new Error('cancelled'));
+    expect(seen!.aborted).toBe(true);
+  });
+});
+
+describe('slugify edge cases (fleet-audit#765)', () => {
+  it('folds accented letters instead of dropping them', async () => {
+    const { slugify } = await import('../src/client.js');
+    expect(slugify('Café Catering')).toBe('cafe-catering');
+    expect(slugify('Piñata Rental')).toBe('pinata-rental');
+  });
+
+  it.each(['!!!', '水管工'])('refuses a service %s that slugifies to nothing, without fetching', async (service) => {
+    const err = await client.searchPage(service, '28203').catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(McpToolError);
+    expect(String((err as Error).message)).toMatch(/slug|letters|service/i);
+    expect(String((err as Error).message)).not.toMatch(/404/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});

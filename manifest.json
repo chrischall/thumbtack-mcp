@@ -19,6 +19,32 @@
       ]
     }
   },
+  "tools": [
+    {
+      "name": "thumbtack_search_pros",
+      "description": "Search Thumbtack for local service pros by trade and US ZIP code"
+    },
+    {
+      "name": "thumbtack_resolve_service",
+      "description": "Resolve a loose service name to the canonical Thumbtack slug"
+    },
+    {
+      "name": "thumbtack_get_pro",
+      "description": "Read a Thumbtack pro profile: rating, credentials and sections"
+    },
+    {
+      "name": "thumbtack_get_pro_reviews",
+      "description": "Read the reviews on a Thumbtack pro profile"
+    },
+    {
+      "name": "thumbtack_graphql",
+      "description": "Run a read-only query against Thumbtack anonymous GraphQL"
+    },
+    {
+      "name": "thumbtack_healthcheck",
+      "description": "Check the search page and GraphQL endpoint are reachable"
+    }
+  ],
   "user_config": {},
   "compatibility": {
     "platforms": [
