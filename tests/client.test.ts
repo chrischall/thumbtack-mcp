@@ -184,3 +184,19 @@ describe('cancellation (fleet-audit#767)', () => {
     expect(seen!.aborted).toBe(true);
   });
 });
+
+describe('slugify edge cases (fleet-audit#765)', () => {
+  it('folds accented letters instead of dropping them', async () => {
+    const { slugify } = await import('../src/client.js');
+    expect(slugify('Café Catering')).toBe('cafe-catering');
+    expect(slugify('Piñata Rental')).toBe('pinata-rental');
+  });
+
+  it.each(['!!!', '水管工'])('refuses a service %s that slugifies to nothing, without fetching', async (service) => {
+    const err = await client.searchPage(service, '28203').catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(McpToolError);
+    expect(String((err as Error).message)).toMatch(/slug|letters|service/i);
+    expect(String((err as Error).message)).not.toMatch(/404/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
