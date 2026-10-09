@@ -74,19 +74,28 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
     },
     async ({ service, zip, view, limit }) => {
       const page = await client.searchPage(service, zip);
-      const results = proListOf(extractNextData(page.html));
+      const nextData = extractNextData(page.html);
+      const results = proListOf(nextData);
       const canonicalService = canonicalSlugOf(page.finalUrl);
 
-      // Undocumented endpoint: if the envelope drifted, hand back the raw
-      // payload with a warning rather than a confidently-empty list.
+      // Undocumented endpoint: if the envelope drifted, say so rather than
+      // return a confidently-empty list. The whole __NEXT_DATA__ runs to
+      // hundreds of KB, so the default rung returns only an outline of
+      // pageProps; `view: "full"` is the explicit opt-in to the raw payload.
       if (results === null) {
-        process.stderr.write('[thumbtack-mcp] proListResults not found — returning raw payload\n');
-        return minifiedResult({
-          warning: 'Unexpected response shape: proListResults was not found where it was verified to be. Returning the raw payload.',
+        process.stderr.write('[thumbtack-mcp] proListResults not found — returning a payload outline\n');
+        const base = {
+          warning: 'Unexpected response shape: proListResults was not found where it was verified to be.',
           requestedService: service,
           canonicalService,
           url: page.finalUrl,
-          raw: extractNextData(page.html),
+        };
+        if (!isCompact(view)) return minifiedResult({ ...base, raw: nextData });
+        const pageProps = (nextData as { props?: { pageProps?: unknown } } | null)?.props?.pageProps;
+        return minifiedResult({
+          ...base,
+          pagePropsKeys: pageProps !== null && typeof pageProps === 'object' ? Object.keys(pageProps) : [],
+          hint: 'Pass view: "full" to get the raw __NEXT_DATA__ payload (large).',
         });
       }
 

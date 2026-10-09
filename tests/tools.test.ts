@@ -91,12 +91,39 @@ describe('thumbtack_search_pros', () => {
     await h.close();
   });
 
-  it('degrades to the raw payload when the envelope drifts, instead of returning an empty list', async () => {
-    fake.searchPage.mockResolvedValue({ html: '<html><script id="__NEXT_DATA__" type="application/json">{"props":{}}</script></html>', finalUrl: 'https://x/k/y/near-me' });
+  // fleet-audit#764: a drifted envelope must not flood the context by default.
+  const DRIFTED =
+    '<html><script id="__NEXT_DATA__" type="application/json">' +
+    JSON.stringify({ props: { pageProps: { somethingNew: { big: 'x'.repeat(5000), img: 'https://cdn.thumbtack.com/a.jpg' }, other: 1 } } }) +
+    '</script></html>';
+
+  it('on envelope drift, compact (default) returns a bounded outline, not the whole __NEXT_DATA__', async () => {
+    fake.searchPage.mockResolvedValue({ html: DRIFTED, finalUrl: 'https://x/k/y/near-me' });
+    const h = await harness();
+    const r = await h.callTool('thumbtack_search_pros', { service: 'x', zip: '28203' });
+    const out = parseToolResult<any>(r);
+    expect(out.warning).toMatch(/shape/i);
+    expect(out.raw).toBeUndefined();
+    expect(out.pagePropsKeys).toEqual(['somethingNew', 'other']);
+    expect(out.hint).toMatch(/view.*full/i);
+    expect(JSON.stringify(r.content).length).toBeLessThan(2000);
+    await h.close();
+  });
+
+  it('on envelope drift, view:"full" returns the raw payload', async () => {
+    fake.searchPage.mockResolvedValue({ html: DRIFTED, finalUrl: 'https://x/k/y/near-me' });
+    const h = await harness();
+    const out = parseToolResult<any>(await h.callTool('thumbtack_search_pros', { service: 'x', zip: '28203', view: 'full' }));
+    expect(out.warning).toMatch(/shape/i);
+    expect(out.raw.props.pageProps.other).toBe(1);
+    await h.close();
+  });
+
+  it('on envelope drift with no __NEXT_DATA__ at all, compact reports no keys', async () => {
+    fake.searchPage.mockResolvedValue({ html: '<html></html>', finalUrl: 'https://x/k/y/near-me' });
     const h = await harness();
     const out = parseToolResult<any>(await h.callTool('thumbtack_search_pros', { service: 'x', zip: '28203' }));
-    expect(out.warning).toMatch(/shape/i);
-    expect(out.raw).toBeDefined();
+    expect(out.pagePropsKeys).toEqual([]);
     await h.close();
   });
 
