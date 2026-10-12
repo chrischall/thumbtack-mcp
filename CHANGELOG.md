@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.8](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.7...thumbtack-mcp-v1.1.8) (2026-10-12)
+
+
+### Bug Fixes
+
+* **deps:** Bump the production-dependencies group with 2 updates ([#92](https://github.com/chrischall/thumbtack-mcp/issues/92)) ([832f6be](https://github.com/chrischall/thumbtack-mcp/commit/832f6beddcd86c4eb9697c2326328b7a858abec0))
+
 ## [1.1.7](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.6...thumbtack-mcp-v1.1.7) (2026-10-09)
 
 
