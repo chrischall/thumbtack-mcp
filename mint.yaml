@@ -4,6 +4,13 @@ slug: thumbtack
 summary: >-
   Unofficial Thumbtack MCP — search local service pros, read profiles,
   ratings and reviews. Anonymous, read-only.
+examples:
+  - prompt: Find me the top-rated house cleaners near ZIP 10001 and compare their ratings, review counts and response times.
+    note: Searches pros by trade and ZIP; anonymous, no Thumbtack account needed.
+  - prompt: Which plumbers near 94110 on Thumbtack have a background check, and how many hires has each one had?
+    note: Combines search results with each pro's profile credentials.
+  - prompt: Summarize the recent reviews for the highest-rated electrician near 60614 — what do customers praise or complain about?
+    note: Reads the reviews embedded on a pro's public profile page.
 egress:
   allow:
     # Only hosts the SERVER process actually fetches. Hosts that appear
