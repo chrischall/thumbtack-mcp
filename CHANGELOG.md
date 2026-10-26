@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.9](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.8...thumbtack-mcp-v1.1.9) (2026-10-26)
+
+
+### Bug Fixes
+
+* **deps:** Bump the production-dependencies group with 2 updates ([#101](https://github.com/chrischall/thumbtack-mcp/issues/101)) ([e0cd71b](https://github.com/chrischall/thumbtack-mcp/commit/e0cd71b960886b2de5f09a088ac859f6459146e4))
+* **deps:** Bump the production-dependencies group with 3 updates ([#98](https://github.com/chrischall/thumbtack-mcp/issues/98)) ([a82af6a](https://github.com/chrischall/thumbtack-mcp/commit/a82af6a2d630f4707dd84f7e68d43f726a693569))
+
+
+### Documentation
+
+* **mint:** add sample prompts for the public catalog ([#100](https://github.com/chrischall/thumbtack-mcp/issues/100)) ([9443e48](https://github.com/chrischall/thumbtack-mcp/commit/9443e48fc4990bb5477dfca336c0c1986ebfc520))
+
 ## [1.1.8](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.7...thumbtack-mcp-v1.1.8) (2026-10-12)
 
 
