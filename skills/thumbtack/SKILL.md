@@ -83,6 +83,18 @@ Read it before composing a call — the per-store field paths are all there.
   number. Handle the absent case; don't assume a price exists.
 - Read-only. Nothing here writes, books, or contacts a pro.
 
+## In context groups
+
+On a host with context groups (mcp-host), the MCP's tools sit in the
+**home** group. None of them is a canonical read: Thumbtack is an anonymous
+directory of local pros, so nothing in it is new, due or on for you, and it
+has no listable subjects. Every read is a `lookup` (search, resolve a
+service, a pro's profile and reviews); the GraphQL escape hatch is `other`.
+A compound home ask ("is the pool heater on, and find me a pool repair pro
+near 28203") reaches Thumbtack for the lookup half only. It needs no
+browser and no sign-in, so the group never reports it as "needs your
+browser open".
+
 ## What this skill does NOT cover
 
 - **Your own Thumbtack account** (projects, messages, quotes). The login is

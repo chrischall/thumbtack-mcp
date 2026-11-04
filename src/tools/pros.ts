@@ -11,6 +11,7 @@ import type { McpServer } from '@modelcontextprotocol/server';
 import { McpToolError, minifiedResult, toolAnnotations } from '@chrischall/mcp-utils';
 import { isReadOnlyGraphqlDocument } from '@chrischall/mcp-utils/graphql';
 import { type ThumbtackClient, WWW, slugify } from '../client.js';
+import { FIND_A_PRO_ALIASES, VET_A_PRO_ALIASES, homeMeta } from './hints.js';
 import { extractApolloState, extractNextData, localBusiness, servicePageOf } from '../parse.js';
 import { compactPro, credentialsOf, proListOf, reviewsOf, summaryOf } from '../normalize.js';
 
@@ -65,6 +66,7 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
       description:
         'Search Thumbtack for local service pros by trade and US ZIP code. Returns up to 10 ranked pros with rating, review count, lifetime hires, mean response time and profile URL. Anonymous — no account needed.',
       annotations: toolAnnotations({ title: 'Search pros', openWorld: true }),
+      _meta: homeMeta('lookup', FIND_A_PRO_ALIASES),
       inputSchema: z.object({
         service: z.string().min(1).describe('Trade or service, e.g. "house cleaning", "plumbing", "electrician". Loose names are canonicalised by Thumbtack.'),
         zip: UsZip.describe('5-digit US ZIP code to search near.'),
@@ -118,6 +120,7 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
       description:
         'Resolve a loose service name to the canonical Thumbtack slug by asking Thumbtack (it canonicalises via redirect, e.g. "plumbing" -> "plumbers"). Use before assuming a slug is right.',
       annotations: toolAnnotations({ title: 'Resolve service slug', openWorld: true }),
+      _meta: homeMeta('lookup'),
       inputSchema: z.object({
         service: z.string().min(1).describe('Trade or service name to canonicalise.'),
         zip: UsZip.default('10001').describe('ZIP used to drive the lookup; does not affect the resolved slug.'),
@@ -142,6 +145,7 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
       description:
         "Read a Thumbtack pro's profile: name, description, location, aggregate rating, plus credentials (background check, licences) and the section inventory. Takes a profile URL from thumbtack_search_pros.",
       annotations: toolAnnotations({ title: 'Get pro profile', openWorld: true }),
+      _meta: homeMeta('lookup', VET_A_PRO_ALIASES),
       inputSchema: z.object({
         url: z.string().min(1).describe('Full https://www.thumbtack.com/... pro profile URL.'),
         view: viewArg(),
@@ -180,6 +184,7 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
       description:
         "Read the reviews embedded on a Thumbtack pro's profile page (star rating, author, date, text). Takes a profile URL from thumbtack_search_pros.",
       annotations: toolAnnotations({ title: 'Get pro reviews', openWorld: true }),
+      _meta: homeMeta('lookup', ['reviews', 'what people say', 'ratings']),
       inputSchema: z.object({
         url: z.string().min(1).describe('Full https://www.thumbtack.com/... pro profile URL.'),
         limit: z.number().int().min(1).max(100).optional().describe('Cap the number of reviews returned.'),
@@ -207,6 +212,7 @@ export function registerProTools(server: McpServer, client: ThumbtackClient): vo
       description:
         "Escape hatch: issue an arbitrary read-only query against Thumbtack's anonymous GraphQL endpoint. Introspection is disabled upstream, so field names must come from a page's Apollo state. Mutations are refused.",
       annotations: toolAnnotations({ title: 'Raw GraphQL query', openWorld: true }),
+      _meta: homeMeta('other'),
       inputSchema: z.object({
         query: z.string().min(1).describe('A GraphQL query document. Must not contain a mutation or subscription.'),
         variables: z.record(z.string(), z.unknown()).optional().describe('Variables for the query.'),
