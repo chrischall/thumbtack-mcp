@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.2.0...thumbtack-mcp-v1.2.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* **deps:** Bump @chrischall/mcp-utils ([#106](https://github.com/chrischall/thumbtack-mcp/issues/106)) ([4c4fc18](https://github.com/chrischall/thumbtack-mcp/commit/4c4fc180e4a71156016fad6b87549db295259c0f))
+
 ## [1.2.0](https://github.com/chrischall/thumbtack-mcp/compare/thumbtack-mcp-v1.1.8...thumbtack-mcp-v1.2.0) (2026-11-04)
 
 
